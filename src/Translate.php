@@ -4,6 +4,7 @@ namespace TONYLABS\Translate;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class Translate
 {
@@ -26,7 +27,7 @@ class Translate
 
     public function translate(string $words)
     {
-        $salt = $this->uuid();
+        $salt = (string) Str::uuid();
         $timestamp = time();
         $signature = $this->app_id . $this->truncate($words) . $salt . $timestamp . $this->app_secret;
 
@@ -54,37 +55,6 @@ class Translate
         {
             return $words;
         }
-    }
-
-    private function uuid()
-    {
-        $micro_time = microtime(); //@return: 0.34063300 1653996399
-        list($microseconds, $timestamp) = explode(' ', $micro_time);
-        $microseconds_hex = dechex($microseconds * 1000000);
-        $timestamp_hex = dechex($timestamp);
-        $this->fix_length($microseconds_hex, 5);
-        $this->fix_length($timestamp_hex, 6);
-        $uuid = $microseconds_hex;
-        $uuid .= $this->uuid_section(3);
-        $uuid .= '-';
-        $uuid .= $this->uuid_section(4);
-        $uuid .= '-';
-        $uuid .= $this->uuid_section(4);
-        $uuid .= '-';
-        $uuid .= $this->uuid_section(4);
-        $uuid .= '-';
-        $uuid .= $timestamp_hex;
-        $uuid .= $this->uuid_section(6);
-        return $uuid;
-    }
-
-    private function uuid_section($limit)
-    {
-        $uuid_section = '';
-        for ($i = 0; $i < $limit; $i++) {
-            $uuid_section .= dechex(mt_rand(0, 15));
-        }
-        return $uuid_section;
     }
 
     private function abslength($string)
