@@ -1,2 +1,5 @@
-# laravel-youdao-translate
+# Youdao Translate for Youdao
+
+### Supported Languages
+
  

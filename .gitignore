@@ -1,0 +1,13 @@
+# macOS Finder
+.DS_Store
+
+# Jetbrains
+/.idea
+
+# composer
+/vendor
+composer.lock
+
+# PHPUnit
+phpunit.xml
+.phpunit.result.cache
