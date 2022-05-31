@@ -12,7 +12,7 @@ class Translate
     protected string $from_locale;
     protected string $to_locale;
     protected string $base_url = 'https://openapi.youdao.com/api';
-    protected string $sign_type = 'V3';
+    protected string $sign_type = 'v3';
 
     public function __construct(string $app_id, string $app_secret, string $from_locale, string $to_locale, bool $debug = false)
     {
