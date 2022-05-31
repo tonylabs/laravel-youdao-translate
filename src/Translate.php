@@ -2,6 +2,7 @@
 
 namespace TONYLABS\Translate;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 
 class Translate
@@ -47,7 +48,7 @@ class Translate
         $response = Http::asForm()->post($this->base_url, $arrayData);
         if ($response->successful())
         {
-            return $response->object();
+            return Arr::first($response->object()->translation);
         }
         else
         {
