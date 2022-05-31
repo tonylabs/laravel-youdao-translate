@@ -44,7 +44,15 @@ class Translate
 
         if ($this->debug) ray($arrayData);
 
-        return Http::asForm()->post($this->base_url, $arrayData)->json();
+        $response = Http::asForm()->post($this->base_url, $arrayData);
+        if ($response->successful())
+        {
+            return $response->object();
+        }
+        else
+        {
+            return $words;
+        }
     }
 
     private function uuid()
