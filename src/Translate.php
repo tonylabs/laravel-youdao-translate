@@ -6,15 +6,21 @@ use Illuminate\Support\Facades\Http;
 
 class Translate
 {
+    protected bool $debug;
     protected string $app_id;
     protected string $app_secret;
+    protected string $from_locale;
+    protected string $to_locale;
     protected string $base_url = 'https://openapi.youdao.com/api';
     protected string $sign_type = 'V3';
 
-    public function __construct(string $app_id, string $app_secret)
+    public function __construct(string $app_id, string $app_secret, string $from_locale, string $to_locale, bool $debug = false)
     {
         $this->app_id = $app_id;
         $this->app_secret = $app_secret;
+        $this->from_locale = $from_locale;
+        $this->to_locale = $to_locale;
+        $this->debug = $debug;
     }
 
     public function translate(string $words)
@@ -23,17 +29,22 @@ class Translate
         $timestamp = time();
         $signature = $this->app_id . $this->truncate($words) . $salt . $timestamp . $this->app_secret;
 
+        if ($this->debug) ray($signature);
+
         $arrayData = [
             'q' => $words,
             'appKey' => $this->app_id,
             'salt' => $salt,
         ];
-        $arrayData['from'] = 'zh-CHS';
-        $arrayData['to'] = 'en';
+        $arrayData['from'] = $this->from_locale;
+        $arrayData['to'] = $this->to_locale;
         $arrayData['signType'] = $this->sign_type;
         $arrayData['curtime'] = $timestamp;
         $arrayData['sign'] = hash('sha256', $signature);
         $arrayData['vocabId'] = '';
+
+        if ($this->debug) ray($arrayData);
+
         return Http::acceptJson()->post($this->base_url, $arrayData)->json();
     }
 
