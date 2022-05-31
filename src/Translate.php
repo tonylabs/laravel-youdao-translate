@@ -34,8 +34,7 @@ class Translate
         $arrayData['curtime'] = $timestamp;
         $arrayData['sign'] = hash('sha256', $signature);
         $arrayData['vocabId'] = '';
-        $response = Http::acceptJson()->post($this->base_url, $arrayData);
-        return $response;
+        return Http::acceptJson()->post($this->base_url, $arrayData)->json();
     }
 
     private function uuid()
