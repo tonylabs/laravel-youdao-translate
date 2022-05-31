@@ -34,18 +34,17 @@ class Translate
         $arrayData = [
             'q' => $words,
             'appKey' => $this->app_id,
-            'salt' => $salt,
+            'salt' => $salt
         ];
         $arrayData['from'] = $this->from_locale;
         $arrayData['to'] = $this->to_locale;
         $arrayData['signType'] = $this->sign_type;
         $arrayData['curtime'] = $timestamp;
         $arrayData['sign'] = hash('sha256', $signature);
-        $arrayData['vocabId'] = '';
 
         if ($this->debug) ray($arrayData);
 
-        return Http::acceptJson()->post($this->base_url, $arrayData)->json();
+        return Http::asForm()->post($this->base_url, $arrayData)->json();
     }
 
     private function uuid()
@@ -79,14 +78,14 @@ class Translate
         return $uuid_section;
     }
 
-    private function abslength($str)
+    private function abslength($string)
     {
-        if (empty($str)) return 0;
+        if (empty($string)) return 0;
         if (function_exists('mb_strlen')) {
-            return mb_strlen($str, 'utf-8');
+            return mb_strlen($string, 'utf-8');
         } else {
-            preg_match_all("/./u", $str, $ar);
-            return count($ar[0]);
+            preg_match_all("/./u", $string, $matches);
+            return count($matches[0]);
         }
     }
 
