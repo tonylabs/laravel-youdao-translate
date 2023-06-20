@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 
 class Translate
 {
-    protected bool $debug;
     protected string $app_id;
     protected string $app_secret;
     protected string $from_locale;
@@ -16,13 +15,12 @@ class Translate
     protected string $base_url = 'https://openapi.youdao.com/api';
     protected string $sign_type = 'v3';
 
-    public function __construct(string $app_id, string $app_secret, string $from_locale, string $to_locale, bool $debug = false)
+    public function __construct(string $app_id, string $app_secret, string $from_locale, string $to_locale)
     {
         $this->app_id = $app_id;
         $this->app_secret = $app_secret;
         $this->from_locale = $from_locale;
         $this->to_locale = $to_locale;
-        $this->debug = $debug;
     }
 
     public function translate(string $words)
@@ -30,8 +28,6 @@ class Translate
         $salt = (string) Str::uuid();
         $timestamp = time();
         $signature = $this->app_id . $this->truncate($words) . $salt . $timestamp . $this->app_secret;
-
-        if ($this->debug) ray($signature);
 
         $arrayData = [
             'q' => $words,
@@ -44,12 +40,10 @@ class Translate
         $arrayData['curtime'] = $timestamp;
         $arrayData['sign'] = hash('sha256', $signature);
 
-        if ($this->debug) ray($arrayData);
-
-        $response = Http::asForm()->post($this->base_url, $arrayData);
-        if ($response->successful())
+        $objResponse = Http::asForm()->post($this->base_url, $arrayData);
+        if ($objResponse->successful())
         {
-            return Arr::first($response->object()->translation);
+            return Arr::first($objResponse->object()->translation);
         }
         else
         {
@@ -59,19 +53,24 @@ class Translate
 
     private function abslength($string)
     {
-        if (empty($string)) return 0;
         if (function_exists('mb_strlen')) {
             return mb_strlen($string, 'utf-8');
-        } else {
-            preg_match_all("/./u", $string, $matches);
-            return count($matches[0]);
         }
+
+        preg_match_all('/./u', $string, $matches);
+        return count($matches[0]);
     }
 
     private function truncate($words)
     {
         $length = $this->abslength($words);
-        return $length <= 20 ? $words : (mb_substr($words, 0, 10) . $length . mb_substr($words, $length - 10, $length));
+    
+        if ($length <= 20) {
+            return $words;
+        }
+        
+        $truncated = mb_substr($words, 0, 10) . $length . mb_substr($words, -$length + 10);
+        return $truncated;
     }
 
     private function fix_length(&$string, $length)
