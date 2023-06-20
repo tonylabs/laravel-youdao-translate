@@ -41,13 +41,14 @@ class Translate
         $arrayData['sign'] = hash('sha256', $signature);
 
         $objResponse = Http::asForm()->post($this->base_url, $arrayData);
-        if ($objResponse->successful())
+
+        if ($objResponse->successful() && !$objResponse->object()->errorCode)
         {
             return Arr::first($objResponse->object()->translation);
         }
         else
         {
-            return $words;
+            return false;
         }
     }
 
@@ -56,7 +57,6 @@ class Translate
         if (function_exists('mb_strlen')) {
             return mb_strlen($string, 'utf-8');
         }
-
         preg_match_all('/./u', $string, $matches);
         return count($matches[0]);
     }
@@ -64,22 +64,6 @@ class Translate
     private function truncate($words)
     {
         $length = $this->abslength($words);
-    
-        if ($length <= 20) {
-            return $words;
-        }
-        
-        $truncated = mb_substr($words, 0, 10) . $length . mb_substr($words, -$length + 10);
-        return $truncated;
-    }
-
-    private function fix_length(&$string, $length)
-    {
-        $string_length = strlen($string);
-        if ($string_length < $length) {
-            $string = str_pad($string, $length, '0');
-        } else if ($string_length > $length) {
-            $string = substr($string, 0, $length);
-        }
+        return $length <= 20 ? $words : (mb_substr($words, 0, 10) . $length . mb_substr($words, $length - 10, $length));
     }
 }
